@@ -1,0 +1,9 @@
+streamlit
+pandas
+plotly
+google-play-scraper
+requests
+vaderSentiment
+scikit-learn
+google-generativeai
+python-dotenv
