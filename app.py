@@ -794,12 +794,7 @@ if st.button("Mine & Generate Copy", type="primary", width="stretch", disabled=n
             
     # 2. Check for the shortfall warning
     total_fetched = len(raw)
-    
     if total_fetched >= 10:
-        if total_fetched < total_requested:
-            # 3. Pop up the warning if there are fewer reviews than requested
-            st.warning(f"⚠️ **Notice:** You requested {total_requested} reviews, but we could only fetch {total_fetched} available in the store. Proceeding with analysis using these {total_fetched} reviews.")
-            
         combined_name = " & ".join(app_names) if app_names else "Result"
         st.session_state.results = {"raw": raw, "name": combined_name}
     else: 
