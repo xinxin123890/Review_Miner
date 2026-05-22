@@ -748,31 +748,39 @@ can_scrape_ios = bool(ios_id and api_key)
 if st.button("Mine & Generate Copy", type="primary", width="stretch", disabled=not (can_scrape_gplay or can_scrape_ios)):
     raw = []
     app_names = []
+    total_requested = 0  # 1. We start a tracker for how many reviews you asked for
     
     if can_scrape_gplay:
+        total_requested += gplay_count  # Add Google Play request count
         with st.spinner(f"Fetching Google Play reviews..."):
             raw.extend(scrape_gplay(gplay_id, gplay_count))
             if gplay_name: app_names.append(gplay_name)
             
     if can_scrape_ios:
+        total_requested += ios_count  # Add App Store request count
         with st.spinner(f"Fetching App Store reviews..."):
             raw.extend(scrape_appstore(ios_id.strip(), ios_count))
             
-            # Prefer the exact name from the search bar if available
             final_ios_name = ios_name if ios_name else get_appstore_name(ios_id.strip())
             
-            # Check if this exact brand is already in the list using your clean_app_name logic
-            # This stops "Spotify: Music" and "Spotify - Music" from duplicating in the title
             if final_ios_name:
                 clean_new = clean_app_name(final_ios_name).lower()
                 if not any(clean_app_name(existing).lower() == clean_new for existing in app_names):
                     app_names.append(final_ios_name)
             
-    if len(raw) >= 10:
+    # 2. Check for the shortfall warning
+    total_fetched = len(raw)
+    
+    if total_fetched >= 10:
+        if total_fetched < total_requested:
+            # 3. Pop up the warning if there are fewer reviews than requested
+            st.warning(f"⚠️ **Notice:** You requested {total_requested} reviews, but we could only fetch {total_fetched} available in the store. Proceeding with analysis using these {total_fetched} reviews.")
+            
         combined_name = " & ".join(app_names) if app_names else "Result"
         st.session_state.results = {"raw": raw, "name": combined_name}
     else: 
-        st.error(f"Too few reviews returned across platforms (Found {len(raw)}). Need at least 10.")
+        # 4. Keep the original error if it's completely dead (under 10)
+        st.error(f"Too few reviews returned across platforms (Found {total_fetched}). Need at least 10.")
 
 # ── Shared pipeline ───────────────────────────────────────────────────────────
 if st.session_state.results is not None:
