@@ -748,18 +748,29 @@ can_scrape_ios = bool(ios_id and api_key)
 if st.button("Mine & Generate Copy", type="primary", width="stretch", disabled=not (can_scrape_gplay or can_scrape_ios)):
     raw = []
     app_names = []
-    total_requested = 0  # 1. We start a tracker for how many reviews you asked for
+    warnings_to_show = []  # 1. Create a list to hold store-specific warnings
     
     if can_scrape_gplay:
-        total_requested += gplay_count  # Add Google Play request count
         with st.spinner(f"Fetching Google Play reviews..."):
-            raw.extend(scrape_gplay(gplay_id, gplay_count))
+            gplay_data = scrape_gplay(gplay_id, gplay_count)
+            raw.extend(gplay_data)
+            
+            # 2. Check Google Play specifically
+            gplay_fetched = len(gplay_data)
+            if gplay_fetched < gplay_count:
+                warnings_to_show.append(f"You requested {gplay_count} reviews from Google Play, but there are only {gplay_fetched} reviews in the store. Proceeding with analysis using these {gplay_fetched} reviews.")
+                
             if gplay_name: app_names.append(gplay_name)
             
     if can_scrape_ios:
-        total_requested += ios_count  # Add App Store request count
         with st.spinner(f"Fetching App Store reviews..."):
-            raw.extend(scrape_appstore(ios_id.strip(), ios_count))
+            ios_data = scrape_appstore(ios_id.strip(), ios_count)
+            raw.extend(ios_data)
+            
+            # 3. Check App Store specifically
+            ios_fetched = len(ios_data)
+            if ios_fetched < ios_count:
+                warnings_to_show.append(f"You requested {ios_count} reviews from the App Store, but there are only {ios_fetched} reviews in the store. Proceeding with analysis using these {ios_fetched} reviews.")
             
             final_ios_name = ios_name if ios_name else get_appstore_name(ios_id.strip())
             
@@ -767,6 +778,19 @@ if st.button("Mine & Generate Copy", type="primary", width="stretch", disabled=n
                 clean_new = clean_app_name(final_ios_name).lower()
                 if not any(clean_app_name(existing).lower() == clean_new for existing in app_names):
                     app_names.append(final_ios_name)
+            
+    # 4. Final check and display warnings
+    total_fetched = len(raw)
+    
+    if total_fetched >= 10:
+        # Display any warnings we collected for the specific stores
+        for warning_msg in warnings_to_show:
+            st.warning(f"⚠️ **Notice:** {warning_msg}")
+            
+        combined_name = " & ".join(app_names) if app_names else "Result"
+        st.session_state.results = {"raw": raw, "name": combined_name}
+    else: 
+        st.error(f"Too few reviews returned across platforms (Found {total_fetched}). Need at least 10.")
             
     # 2. Check for the shortfall warning
     total_fetched = len(raw)
@@ -792,7 +816,7 @@ if st.session_state.results is not None:
     themes_summary = "\n".join(f"Theme {i+1}: {', '.join(t['keywords'][:5])}" for i, t in themes.items())
     neg_sample = "\n".join(f'- "{r["text"][:200]}"' for r in neg_reviews[:6])
 
-    with st.spinner("Generating copy with Gemini 1.5 Pro…"):
+    with st.spinner("Generating copy with Gemini 3.1 Flash-Lite…"):
         try:
             copy_output = generate_copy(data["name"], themes_summary, neg_sample, api_key)
         except json.JSONDecodeError:
