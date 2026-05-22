@@ -407,8 +407,8 @@ def generate_copy(product_name: str, themes_summary: str, neg_sample: str, api_k
 Keep sentences punchy and avoid AI jargon."""
     prompt = f"Product: {product_name}\nThemes: {themes_summary}\nBad Reviews: {neg_sample}\nTone: {tone_note}\nReturn ONLY valid JSON matching this exact structure:\n{output_spec}"
     
-    # Use the fastest, most reliable text model
-    fixed_model_name = "gemini-flash-latest"
+    # Use the fastest, most reliable text modelgit add .
+    fixed_model_name = "gemini-flash-lite-latest"
     model = genai.GenerativeModel(fixed_model_name)
     response = model.generate_content(prompt)
     
