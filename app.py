@@ -927,7 +927,7 @@ if st.session_state.results is not None:
             st.markdown(ms.get("competitor_counter_angle", ""))
             
         with st.container(border=True):
-            st.markdown("##### Retention/Trust Objection Handler")
+            st.markdown("##### Churn Prevention Strategy")
             st.markdown(ms.get("retention_objection_handler", ""))
 
     with res3:
@@ -957,7 +957,7 @@ if st.session_state.results is not None:
             st.markdown(cc.get("tiktok_ugc_hook", ""))
             
         with st.container(border=True):
-            st.markdown("##### Product Hunt Maker Comment")
+            st.markdown("##### Product Hunt's Project Page")
             st.markdown(cc.get("product_hunt_comment", ""))
         
         st.divider()
@@ -974,7 +974,7 @@ if st.session_state.results is not None:
         )
 
 else:
-    st.info("Ready for extraction. Enter target apps above and click 'Mine & generate copy' to begin.")
+    st.info("Ready for extraction. Enter target apps above and click 'Mine & Generate Copy' to begin.")
 
 st.divider()
 st.caption("© 2026 Review Miner AI.")
