@@ -915,11 +915,11 @@ if st.session_state.results is not None:
         ms = copy_output.get("marketing_strategy", {})
         
         with st.container(border=True):
-            st.markdown("##### 🎯 Core App Store Positioning")
+            st.markdown("##### Core App Store Positioning")
             st.markdown(ms.get("core_positioning", ""))
             
         with st.container(border=True):
-            st.markdown("##### 🔑 ASO Keywords")
+            st.markdown("##### ASO Keywords")
             st.markdown(" · ".join([f"`{k}`" for k in ms.get("aso_keywords", [])]))
             
         with st.container(border=True):
